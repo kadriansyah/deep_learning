@@ -21,3 +21,4 @@ for doc in docLabels:
 phrases = Phrases(sentences)
 bigram = Phraser(phrases)
 print(list(bigram[sentences]))
+bigram.save('bigram.model')
