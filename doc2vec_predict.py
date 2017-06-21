@@ -1,11 +1,15 @@
+import gensim
 from os import listdir
 from os.path import isfile, join
 from nltk.tokenize import RegexpTokenizer
-import gensim
+from gensim.models.phrases import Phraser
+
+# loading bigram model
+print('loading bigram model... ')
+bigram = Phraser.load('bigram.model')
+
 LabeledSentence = gensim.models.doc2vec.LabeledSentence
-
 docLabels = [f for f in listdir('documents_test') if f.endswith('.txt')]
-
 data = []
 for doc in docLabels:
     print('processing... '+ doc)
@@ -15,7 +19,7 @@ for doc in docLabels:
 
     # clean punctuation
     tokenizer = RegexpTokenizer(r'\w+')
-    data.extend([token.lower() for token in tokenizer.tokenize(content)])
+    data.extend([token for token in bigram[tokenizer.tokenize(content.lower())]])
 
 model = gensim.models.Doc2Vec.load('doc2vec.model')
 inferred_vector = model.infer_vector(data)
