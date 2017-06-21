@@ -3,7 +3,11 @@ from os import listdir
 from nltk.tokenize import RegexpTokenizer
 from gensim.models import Word2Vec
 
-docLabels = []
+# create stemmer
+from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+factory = StemmerFactory()
+stemmer = factory.create_stemmer()
+
 docLabels = [f for f in listdir('documents') if f.endswith('.txt')]
 data = []
 for doc in docLabels:
@@ -14,7 +18,7 @@ for doc in docLabels:
 
     # clean punctuation & make lower case
     tokenizer = RegexpTokenizer(r'\w+')
-    tokens = [token.lower() for token in tokenizer.tokenize(content)]
+    tokens = [stemmer.stem(token.lower()) for token in tokenizer.tokenize(content)]
     data.append(tokens)
 print(data)
 
@@ -33,10 +37,10 @@ print(data)
 # print(train_data)
 
 print('training word2vec...')
-min_count, size, window = 2, 100, 4
+min_count, size, window = 2, 100, 5
 model = Word2Vec(data, min_count=min_count, size=size, window=window)
-model.save('word2vec_model')
+model.save('word2vec.model')
 for i in range(1, 11):
-    print('training word2vec... %d' % i)
+    print('training word2vec... %d' % model.train_count)
     model.train(data, total_examples=model.corpus_count, epochs=model.iter)
-    model.save('word2vec_model')
+    model.save('word2vec.model')

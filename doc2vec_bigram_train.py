@@ -1,11 +1,32 @@
+import nltk
 import gensim
 from os import listdir
 from os.path import isfile, join
 from nltk.tokenize import RegexpTokenizer
+from gensim.models import Phrases
+from gensim.models.phrases import Phraser
 
 LabeledSentence = gensim.models.doc2vec.LabeledSentence
 docLabels = [f for f in listdir('documents') if f.endswith('.txt')]
 
+# create bigram
+print('create bigram... ')
+sentences = []
+for doc in docLabels:
+    print('processing... '+ doc)
+    lines = open('documents/' + doc, 'r').read().split('\n')
+    lines = [line for line in lines if line != '']
+    content = ' '.join(lines)
+
+    tokenizer = RegexpTokenizer(r'\w+')
+    sentence = [tokenizer.tokenize(sent) for sent in nltk.sent_tokenize(content.lower())]
+    sentences.extend(sentence)
+
+phrases = Phrases(sentences)
+bigram = Phraser(phrases)
+
+# create training corpus
+print('create training corpus... ')
 data = []
 for doc in docLabels:
     print('processing... '+ doc)
@@ -15,7 +36,8 @@ for doc in docLabels:
 
     # clean punctuation
     tokenizer = RegexpTokenizer(r'\w+')
-    tokens = [token for token in tokenizer.tokenize(content.lower())]
+    tokens = [token for token in bigram[tokenizer.tokenize(content.lower())]]
+    print(tokens)
     content = ' '.join(tokens)
     data.append(content)
 
